@@ -344,7 +344,7 @@ int get_relay_sainsmart_4_8chan(uint8 relay, relay_state_t* relay_state)
     }
 
     /* Open FTDI USB device */
-    if ((ftdi_usb_open(ftdi, VENDOR_ID, DEVICE_ID)) < 0)
+    if ((ftdi_usb_open_desc(ftdi, VENDOR_ID, DEVICE_ID, SAINSMART_FTDI_CHIP_MODEL, NULL)) < 0)
     {
         fprintf(stderr, "unable to open ftdi device: (%s)\n", ftdi_get_error_string(ftdi));
         ftdi_free(ftdi);
@@ -382,7 +382,7 @@ int get_relay_sainsmart_4_8chan_all(int* relay_states)
     unsigned char buf[1];
 
     /* Open FTDI USB device */
-    if ((ftdi_usb_open(ftdi, VENDOR_ID, DEVICE_ID)) < 0)
+    if ((ftdi_usb_open_desc(ftdi, VENDOR_ID, DEVICE_ID, SAINSMART_FTDI_CHIP_MODEL, NULL)) < 0)
     {
         fprintf(stderr, "unable to open ftdi device: (%s)\n", ftdi_get_error_string(ftdi));
         ftdi_free(ftdi);
@@ -422,7 +422,7 @@ int get_relay_sainsmart_4_8chan_raw(uint8* relay_data)
     unsigned char buf[1];
 
     /* Open FTDI USB device */
-    if ((ftdi_usb_open(ftdi, VENDOR_ID, DEVICE_ID)) < 0)
+    if ((ftdi_usb_open_desc(ftdi, VENDOR_ID, DEVICE_ID, SAINSMART_FTDI_CHIP_MODEL, NULL)) < 0)
     {
         fprintf(stderr, "unable to open ftdi device: (%s)\n", ftdi_get_error_string(ftdi));
         ftdi_free(ftdi);
@@ -463,7 +463,7 @@ int set_relay_sainsmart_4_8chan(uint8 relay, relay_state_t relay_state)
     }
 
     /* Open FTDI USB device */
-    if ((ftdi_usb_open(ftdi, VENDOR_ID, DEVICE_ID)) < 0)
+    if ((ftdi_usb_open_desc(ftdi, VENDOR_ID, DEVICE_ID, SAINSMART_FTDI_CHIP_MODEL, NULL)) < 0)
     {
         fprintf(stderr, "unable to open ftdi device: (%s)\n", ftdi_get_error_string(ftdi));
         ftdi_free(ftdi);
@@ -519,7 +519,7 @@ int set_relay_sainsmart_4_8chan_all(relay_state_t relay_state)
     int i;
 
     /* Open FTDI USB device */
-    if ((ftdi_usb_open(ftdi, VENDOR_ID, DEVICE_ID)) < 0)
+    if ((ftdi_usb_open_desc(ftdi, VENDOR_ID, DEVICE_ID, SAINSMART_FTDI_CHIP_MODEL, NULL)) < 0)
     {
         fprintf(stderr, "unable to open ftdi device: (%s)\n", ftdi_get_error_string(ftdi));
         ftdi_free(ftdi);
@@ -581,7 +581,7 @@ int set_relay_sainsmart_4_8chan_write(uint8 relay_data)
     unsigned char buf[1];
 
     /* Open FTDI USB device */
-    if ((ftdi_usb_open(ftdi, VENDOR_ID, DEVICE_ID)) < 0)
+    if ((ftdi_usb_open_desc(ftdi, VENDOR_ID, DEVICE_ID, SAINSMART_FTDI_CHIP_MODEL, NULL)) < 0)
     {
         fprintf(stderr, "unable to open ftdi device: (%s)\n", ftdi_get_error_string(ftdi));
         ftdi_free(ftdi);
