@@ -305,13 +305,13 @@ int find_device(void)
         if (0 == strncmp(description, SAINSMART_FTDI_CHIP_MODEL, strlen(SAINSMART_FTDI_CHIP_MODEL)))
         {
             snprintf(sainsmartboard, sizeof(sainsmartboard), "%s", "YES");
-            printf("Manufacturer: %-8s, Description: %-20s, Serial: %-20s, Sainsmart Board: %s%s%s\n",
+            printf("Manufacturer: %-6s, Description: %-20s, Serial: %-10s, Sainsmart Board: %s%s%s\n",
                    manufacturer, description, serial, ANSI_COLOR_GREEN, sainsmartboard, ANSI_COLOR_RESET);
         }
         else
         {
             snprintf(sainsmartboard, sizeof(sainsmartboard), "%s", "NO");
-            printf("Manufacturer: %-8s, Description: %-20s, Serial: %-20s, Sainsmart Board: %s%s%s\n",
+            printf("Manufacturer: %-6s, Description: %-20s, Serial: %-10s, Sainsmart Board: %s%s%s\n",
                    manufacturer, description, serial, ANSI_COLOR_RED, sainsmartboard, ANSI_COLOR_RESET);
         }
     }
