@@ -10,6 +10,16 @@
 #include "sainsmartrelay.h"
 
 
+#define ANSI_COLOR_RED              "\x1b[31m"
+#define ANSI_COLOR_GREEN            "\x1b[32m"
+#define ANSI_COLOR_RESET            "\x1b[0m"
+
+#define MAX_STR_LEN_MANUFACTURER    128
+#define MAX_STR_LEN_DESCRIPTION     128
+#define MAX_STR_LEN_SERIAL          128
+#define MAX_STR_LEN_SAINSMARTBOARD  4
+
+
 static struct ftdi_context *ftdi;
 static uint8 g_num_relays=MAX_NUM_RELAYS;
 
@@ -211,9 +221,11 @@ int detect_relay_card_sainsmart_4_8chan(char* portname, uint8* num_relays)
         return -1;
     }
 
-    /* Try to open FTDI USB device */
-    if ((ftdi_usb_open(ftdi, VENDOR_ID, DEVICE_ID)) < 0)
+    /* Try to open FTDI USB device for sainsmart
+    relay card with description = SAINSMART_FTDI_CHIP_MODEL ("FT245R USB FIFO") */
+    if (ftdi_usb_open_desc(ftdi, VENDOR_ID, DEVICE_ID, SAINSMART_FTDI_CHIP_MODEL,NULL) < 0)
     {
+        fprintf(stderr, "unable to open ftdi device: (%s)\n", ftdi_get_error_string(ftdi));
         ftdi_free(ftdi);
         return -1;
     }
@@ -261,11 +273,15 @@ int detect_relay_card_sainsmart_4_8chan(char* portname, uint8* num_relays)
  *********************************************************/
 int find_device(void)
 {
-    int ret, i;
+    int ret;
     struct ftdi_context *ftdi;
     struct ftdi_device_list *devlist, *curdev;
-    char manufacturer[128], description[128];
+    char manufacturer[MAX_STR_LEN_MANUFACTURER], description[MAX_STR_LEN_DESCRIPTION], serial[MAX_STR_LEN_SERIAL], sainsmartboard[MAX_STR_LEN_SAINSMARTBOARD];
     int retval = EXIT_SUCCESS;
+
+    memset(manufacturer, 0, sizeof(manufacturer));
+    memset(description, 0, sizeof(description));
+    memset(serial, 0, sizeof(serial));
 
     if ((ftdi = ftdi_new()) == 0)
     {
@@ -273,27 +289,34 @@ int find_device(void)
         return EXIT_FAILURE;
     }
 
-    if ((ret = ftdi_usb_find_all(ftdi, &devlist, 0, 0)) < 0)
+    if ((ret = ftdi_usb_find_all(ftdi, &devlist, VENDOR_ID, DEVICE_ID)) < 0)
     {
         fprintf(stderr, "ftdi_usb_find_all failed: %d (%s)\n", ret, ftdi_get_error_string(ftdi));
         retval =  EXIT_FAILURE;
         goto do_deinit;
     }
-
     printf("Number of FTDI devices found: %d\n", ret);
 
-    i = 0;
-    for (curdev = devlist; curdev != NULL; i++)
-    {
-        printf("Checking device: %d\n", i);
-        if ((ret = ftdi_usb_get_strings(ftdi, curdev->dev, manufacturer, 128, description, 128, NULL, 0)) < 0)
-        {
+    // Iterate through the devices
+    for (curdev = devlist; curdev != NULL; curdev = curdev->next) {
+        if ((ret = ftdi_usb_get_strings(ftdi, curdev->dev, manufacturer, MAX_STR_LEN_MANUFACTURER, description, MAX_STR_LEN_DESCRIPTION, serial, MAX_STR_LEN_SERIAL)) < 0) {
             fprintf(stderr, "ftdi_usb_get_strings failed: %d (%s)\n", ret, ftdi_get_error_string(ftdi));
             retval = EXIT_FAILURE;
             goto done;
         }
-        printf("Manufacturer: %s, Description: %s\n", manufacturer, description);
-        curdev = curdev->next;
+        if (0 == strncmp(description, SAINSMART_FTDI_CHIP_MODEL, strlen(SAINSMART_FTDI_CHIP_MODEL)))
+        {
+            snprintf(sainsmartboard, sizeof(sainsmartboard), "%s", "YES");
+            printf("Manufacturer: %-8s, Description: %-20s, Serial: %-20s, Sainsmart Board: %s%s%s\n",
+               manufacturer, description, serial, ANSI_COLOR_GREEN, sainsmartboard, ANSI_COLOR_RESET);
+        }
+        else
+        {
+        snprintf(sainsmartboard, sizeof(sainsmartboard), "%s", "NO");
+        printf("Manufacturer: %-8s, Description: %-20s, Serial: %-20s, Sainsmart Board: %s%s%s\n",
+               manufacturer, description, serial, ANSI_COLOR_RED, sainsmartboard, ANSI_COLOR_RESET);
+        }
+
     }
 done:
     ftdi_list_free(&devlist);
