@@ -66,7 +66,7 @@ char **strsplit(const char* str, const char* delim, size_t* numtokens)
     // implement a dynamically-growing array
     size_t tokens_alloc = 1;
     size_t tokens_used = 0;
-    char **tokens = calloc(tokens_alloc, sizeof(char*));
+    char **tokens = (char**)calloc(tokens_alloc, sizeof(char*));
     char *token, *strtok_ctx;
     for (token = strtok_r(s, delim, &strtok_ctx);
             token != NULL;
@@ -76,7 +76,7 @@ char **strsplit(const char* str, const char* delim, size_t* numtokens)
         if (tokens_used == tokens_alloc)
         {
             tokens_alloc *= 2;
-            tokens = realloc(tokens, tokens_alloc * sizeof(char*));
+            tokens = (char**)realloc(tokens, tokens_alloc * sizeof(char*));
         }
         tokens[tokens_used++] = strdup(token);
     }
@@ -88,7 +88,7 @@ char **strsplit(const char* str, const char* delim, size_t* numtokens)
     }
     else
     {
-        tokens = realloc(tokens, tokens_used * sizeof(char*));
+      tokens = (char**)realloc(tokens, tokens_used * sizeof(char*));
     }
     *numtokens = tokens_used;
     free(s);
@@ -111,7 +111,7 @@ int *remove_duplicate(int array[],int length, size_t* numtokens)
 {
     size_t tokens_alloc = 1;
     size_t tokens_used = 0;
-    int *tokens = calloc(tokens_alloc, sizeof(int*));
+    int *tokens = (int*)calloc(tokens_alloc, sizeof(int*));
 
     int *current , *end = array + length - 1;
     int flag = 0;
@@ -136,7 +136,7 @@ int *remove_duplicate(int array[],int length, size_t* numtokens)
             if (tokens_used == tokens_alloc)
             {
                 tokens_alloc *= 1;
-                tokens = realloc(tokens, tokens_alloc * sizeof(int*));
+                tokens = (int*)realloc(tokens, tokens_alloc * sizeof(int*));
             }
 
             tokens[tokens_used++] = *array;
@@ -145,7 +145,7 @@ int *remove_duplicate(int array[],int length, size_t* numtokens)
     if (tokens_used == tokens_alloc)
     {
         tokens_alloc *= 1;
-        tokens = realloc(tokens, tokens_alloc * sizeof(int*));
+        tokens = (int*)realloc(tokens, tokens_alloc * sizeof(int*));
     }
 
     tokens[tokens_used++] = *array;
@@ -156,7 +156,7 @@ int *remove_duplicate(int array[],int length, size_t* numtokens)
     }
     else
     {
-        tokens = realloc(tokens, tokens_used * sizeof(int*));
+      tokens = (int*)realloc(tokens, tokens_used * sizeof(int*));
     }
     *numtokens = tokens_used;
     return tokens;
@@ -174,7 +174,7 @@ int *remove_duplicate(int array[],int length, size_t* numtokens)
  *********************************************************/
 int *get_bits(int n, int bitswanted)
 {
-    int *bits = malloc(sizeof(int) * bitswanted);
+  int *bits = (int*)malloc(sizeof(int) * bitswanted);
 
     int k;
     for(k=0; k<bitswanted; k++)

@@ -1,13 +1,15 @@
+CXX := g++
+LD := g++
 
 LIBFTDI_CFLAGS := $(shell pkg-config --cflags libftdi1)
 LIBFTDI_LIBS := $(shell pkg-config --libs libftdi1)
 
-CFLAGS := -Wall
-CFLAGS += $(LIBFTDI_CFLAGS)
+CXXFLAGS := -Wall
+CXXFLAGS += $(LIBFTDI_CFLAGS)
 LIB := $(LIBFTDI_LIBS)
 
 INC_DEBUG := $(INC)
-CFLAGS_DEBUG := $(CFLAGS) -pg -g
+CXXFLAGS_DEBUG := $(CXXFLAGS) -pg -g
 LIBDIR_DEBUG := $(LIBDIR)
 LIB_DEBUG := $(LIB)
 LDFLAGS_DEBUG := $(LDFLAGS) -pg
@@ -15,7 +17,7 @@ OBJDIR_DEBUG := obj/Debug
 OUT_DEBUG := bin/Debug/sainsmartrelay
 
 INC_RELEASE := $(INC)
-CFLAGS_RELEASE := $(CFLAGS) -O2 -w
+CXXFLAGS_RELEASE := $(CXXFLAGS) -O2 -w
 LIBDIR_RELEASE := $(LIBDIR)
 LIB_RELEASE := $(LIB)
 LDFLAGS_RELEASE := $(LDFLAGS) -s
@@ -45,8 +47,8 @@ debug: before_debug out_debug after_debug
 out_debug: before_debug $(OBJ_DEBUG) $(DEP_DEBUG)
 	$(LD) $(LIBDIR_DEBUG) -o $(OUT_DEBUG) $(OBJ_DEBUG)  $(LDFLAGS_DEBUG) $(LIB_DEBUG)
 
-$(OBJDIR_DEBUG)/sainsmartrelay.o: sainsmartrelay.c
-	$(CC) $(CFLAGS_DEBUG) $(INC_DEBUG) -c sainsmartrelay.c -o $(OBJDIR_DEBUG)/sainsmartrelay.o
+$(OBJDIR_DEBUG)/sainsmartrelay.o: sainsmartrelay.cpp
+	$(CXX) $(CXXFLAGS_DEBUG) $(INC_DEBUG) -c sainsmartrelay.cpp -o $(OBJDIR_DEBUG)/sainsmartrelay.o
 
 clean_debug: 
 	rm -f $(OBJ_DEBUG) $(OUT_DEBUG)
@@ -64,8 +66,8 @@ release: before_release out_release after_release
 out_release: before_release $(OBJ_RELEASE) $(DEP_RELEASE)
 	$(LD) $(LIBDIR_RELEASE) -o $(OUT_RELEASE) $(OBJ_RELEASE)  $(LDFLAGS_RELEASE) $(LIB_RELEASE)
 
-$(OBJDIR_RELEASE)/sainsmartrelay.o: sainsmartrelay.c
-	$(CC) $(CFLAGS_RELEASE) $(INC_RELEASE) -c sainsmartrelay.c -o $(OBJDIR_RELEASE)/sainsmartrelay.o
+$(OBJDIR_RELEASE)/sainsmartrelay.o: sainsmartrelay.cpp
+	$(CXX) $(CXXFLAGS_RELEASE) $(INC_RELEASE) -c sainsmartrelay.cpp -o $(OBJDIR_RELEASE)/sainsmartrelay.o
 
 clean_release: 
 	rm -f $(OBJ_RELEASE) $(OUT_RELEASE)
@@ -79,4 +81,3 @@ install: $(BIN)
 	@install -m 0755 -d	$(PREFIX)/bin
 	@install -m 0755 $(OUT_RELEASE)	$(PREFIX)/bin/$(INSTALL_NAME)
 .PHONY:	install
-
