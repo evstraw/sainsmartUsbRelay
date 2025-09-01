@@ -1,3 +1,4 @@
+#include <set>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,73 +99,6 @@ char **strsplit(const char* str, const char* delim, size_t* numtokens)
     }
     *numtokens = tokens_used;
     free(s);
-    return tokens;
-}
-
-
-/**********************************************************
- * Function remove_duplicate()
- *
- * Description: Remove duplicate elements from input array
- *
- * Parameters: array (in) - source array
- *             length(in)- length of the source array
- *             numtokens(out) - Size of the new response array
- *
- * Return:  array - New array with deduped array content
- *********************************************************/
-int *remove_duplicate(int array[],int length, size_t* numtokens)
-{
-    size_t tokens_alloc = 1;
-    size_t tokens_used = 0;
-    int *tokens = (int*)calloc(tokens_alloc, sizeof(int*));
-
-    int *current , *end = array + length - 1;
-    int flag = 0;
-    for ( current = array + 1; array < end; array++, current = array + 1 )
-    {
-        flag = 0;
-        while ( current <= end )
-        {
-            if ( *current == *array )
-            {
-                *current = *end--;
-
-            }
-            else
-            {
-                flag = 1;
-                current++;
-            }
-        }
-        if(flag == 1)
-        {
-            if (tokens_used == tokens_alloc)
-            {
-                tokens_alloc *= 1;
-                tokens = (int*)realloc(tokens, tokens_alloc * sizeof(int*));
-            }
-
-            tokens[tokens_used++] = *array;
-        }
-    }
-    if (tokens_used == tokens_alloc)
-    {
-        tokens_alloc *= 1;
-        tokens = (int*)realloc(tokens, tokens_alloc * sizeof(int*));
-    }
-
-    tokens[tokens_used++] = *array;
-    if (tokens_used == 0)
-    {
-        free(tokens);
-        tokens = NULL;
-    }
-    else
-    {
-      tokens = (int*)realloc(tokens, tokens_used * sizeof(int*));
-    }
-    *numtokens = tokens_used;
     return tokens;
 }
 
@@ -592,24 +526,21 @@ int set_relay_sainsmart_4_8chan_write(uint8 relay_data)
 static uint8 parse (char* op_arg, uint8 relay_data, bool state) {
     size_t numtokens;
     char** op_relay_list = strsplit(op_arg, ", \t\n", &numtokens);
-    int relay_list[numtokens];
-    size_t i;
-    for (i = 0; i < numtokens; i++)
+    std::set<int> relays;
+    for (size_t i = 0; i < numtokens; i++)
     {
-        relay_list[i] = atoi(strdup(op_relay_list[i]));
+        relays.insert(atoi(strdup(op_relay_list[i])));
         free(op_relay_list[i]);
     }
-    size_t numtok;
-    int* relays = remove_duplicate(relay_list,numtokens,&numtok);
 
-    for(i=0; i< numtok; i++)
+    for(int relay : relays)
     {
-        if(relays[i] != 0)
+        if(relay != 0)
         {
             if (state) {
-                relay_data = on(relay_data, relays[i]);
+                relay_data = on(relay_data, relay);
             } else {
-                relay_data = off(relay_data, relays[i]);
+                relay_data = off(relay_data, relay);
             }
         }
     }
