@@ -586,6 +586,33 @@ int set_relay_sainsmart_4_8chan_write(uint8 relay_data)
     return 0;
 }
 
+static uint8 parse (char* op_arg, uint8 relay_data, bool state) {
+    size_t numtokens;
+    char** op_relay_list = strsplit(op_arg, ", \t\n", &numtokens);
+    int relay_list[numtokens];
+    size_t i;
+    for (i = 0; i < numtokens; i++)
+    {
+        relay_list[i] = atoi(strdup(op_relay_list[i]));
+        free(op_relay_list[i]);
+    }
+    size_t numtok;
+    int* relays = remove_duplicate(relay_list,numtokens,&numtok);
+
+    for(i=0; i< numtok; i++)
+    {
+        if(relays[i] != 0)
+        {
+            if (state) {
+                relay_data = relay_data | (0x01<<(relays[i]-1));
+            } else {
+                relay_data = relay_data & ~(0x01<<(relays[i]-1));
+            }
+        }
+    }
+    return relay_data;
+}
+
 int main(int argc, char *argv[])
 {
     relay_state_t rstate;
@@ -775,26 +802,7 @@ int main(int argc, char *argv[])
     }
     else if(opOn == ID_ON_MULTIPLE)
     {
-
-        op_relay_list = strsplit(op_relay_on, ", \t\n", &numtokens);
-        int relay_list[numtokens];
-        for (i = 0; i < numtokens; i++)
-        {
-            relay_list[i] = atoi(strdup(op_relay_list[i]));
-            free(op_relay_list[i]);
-        }
-        relays = remove_duplicate(relay_list,numtokens,&numtok);
-
-        for(i=0; i< numtok; i++)
-        {
-            if(relays[i] != 0)
-            {
-                relay_data = relay_data | (0x01<<(relays[i]-1));
-            }
-
-        }
-
-
+        relay_data = parse(op_relay_on, relay_data, true);
     }
 
     /*
@@ -815,22 +823,7 @@ int main(int argc, char *argv[])
     }
     else if(opOff == ID_OFF_MULTIPLE)
     {
-        op_relay_list = strsplit(op_relay_off, ", \t\n", &numtokens);
-        int relay_list[numtokens];
-        for (i = 0; i < numtokens; i++)
-        {
-            relay_list[i] = atoi(strdup(op_relay_list[i]));
-            free(op_relay_list[i]);
-        }
-        relays = remove_duplicate(relay_list,numtokens,&numtok);
-
-        for(i=0; i< numtok; i++)
-        {
-            if(relays[i] != 0)
-            {
-                relay_data = relay_data & ~(0x01<<(relays[i]-1));
-            }
-        }
+        relay_data = parse(op_relay_off, relay_data, false);
     }
 
     /*
