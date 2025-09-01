@@ -43,7 +43,13 @@ static void checkPermission()
     }
 }
 
+static inline uint8 on(uint8 relay_data, size_t i) {
+    return relay_data | (0x01<<(i-1));
+}
 
+static inline uint8 off(uint8 relay_data, size_t i) {
+    return relay_data & ~(0x01<<(i-1));
+}
 
 /**********************************************************
  * Function strsplit()
@@ -458,16 +464,15 @@ int set_relay_sainsmart_4_8chan(uint8 relay, relay_state_t relay_state)
     }
 
     /* Set the new relay state bit */
-    relay = relay-1;
     if (relay_state == OFF)
     {
         /* Clear the relay bit in mask */
-        buf[0] = buf[0] & ~(0x01<<relay);
+        buf[0] = off(buf[0], relay);
     }
     else
     {
         /* Set the relay bit in mask */
-        buf[0] = buf[0] | (0x01<<relay);
+        buf[0] = on(buf[0], relay);
     }
 
     //printf("DBG: Writing GPIO bits %02X\n", buf[0]);
@@ -520,8 +525,7 @@ int set_relay_sainsmart_4_8chan_all(relay_state_t relay_state)
         //buf[0] = 0x0;
         for(i=1; i<= g_num_relays; i++)
         {
-            buf[0] = buf[0] & ~(0x01<<(i-1));
-
+            buf[0] = off(buf[0], i);
         }
     }
     else
@@ -530,8 +534,7 @@ int set_relay_sainsmart_4_8chan_all(relay_state_t relay_state)
         //buf[0] = 0xFF;
         for(i=1; i<= g_num_relays; i++)
         {
-            buf[0] = buf[0] | (0x01<<(i-1));
-
+            buf[0] = on(buf[0], i);
         }
     }
 
@@ -604,9 +607,9 @@ static uint8 parse (char* op_arg, uint8 relay_data, bool state) {
         if(relays[i] != 0)
         {
             if (state) {
-                relay_data = relay_data | (0x01<<(relays[i]-1));
+                relay_data = on(relay_data, relays[i]);
             } else {
-                relay_data = relay_data & ~(0x01<<(relays[i]-1));
+                relay_data = off(relay_data, relays[i]);
             }
         }
     }
@@ -791,14 +794,12 @@ int main(int argc, char *argv[])
     {
         for(i=1; i<= g_num_relays; i++)
         {
-            relay_data = relay_data | (0x01<<(i-1));
-
+            relay_data = on(relay_data, i);
         }
     }
     else if(opOn == ID_ON)
     {
-
-        relay_data = relay_data | (0x01<<(atoi(op_relay_on)-1));
+        relay_data = on(relay_data, atoi(op_relay_on));
     }
     else if(opOn == ID_ON_MULTIPLE)
     {
@@ -812,14 +813,12 @@ int main(int argc, char *argv[])
     {
         for(i=1; i<= g_num_relays; i++)
         {
-            relay_data = relay_data & ~(0x01<<(i-1));
-
+            relay_data = off(relay_data, i);
         }
     }
     else if(opOff == ID_OFF)
     {
-
-        relay_data = relay_data & ~(0x01<<(atoi(op_relay_off)-1));
+        relay_data = off(relay_data, atoi(op_relay_off));
     }
     else if(opOff == ID_OFF_MULTIPLE)
     {
