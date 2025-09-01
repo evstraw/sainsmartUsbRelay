@@ -4,7 +4,7 @@ LD := g++
 LIBFTDI_CFLAGS := $(shell pkg-config --cflags libftdi1)
 LIBFTDI_LIBS := $(shell pkg-config --libs libftdi1)
 
-CXXFLAGS := -Wall
+CXXFLAGS := -Wall -std=c++20
 CXXFLAGS += $(LIBFTDI_CFLAGS)
 LIB := $(LIBFTDI_LIBS)
 
